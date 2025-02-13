@@ -1,0 +1,59 @@
+name: pipeline
+on:
+ release:
+   types: [published]
+
+permissions:
+  packages: write
+
+jobs:
+  retrieve-tag:
+    name: Retrieve Tag
+    runs-on: ubuntu-latest
+
+    outputs:
+      release-tag: ${{ steps.get_tag.outputs.RELEASE_TAG }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Get release tag
+      id: get_tag
+      run: echo "RELEASE_TAG=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
+
+    - name: Check tag pattern
+      run: |
+          TAG=${{ github.event.release.tag_name }}
+          if [[ ! $TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+-(rc\.[0-9]+)$ ]]; then
+            echo "Error: Invalid tag format. Tags must follow 'vA.B.C' or 'v.A.B.C-rc.D' pattern."
+            exit 1
+          fi
+
+    - name: Display tag
+      run: echo "The released tag is $RELEASE_TAG"
+      env:
+        RELEASE_TAG: ${{ steps.get_tag.outputs.RELEASE_TAG }}
+  
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    needs: retrieve-tag
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: https://ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/accelizen/landing:latest
+            ghcr.io/accleizen/landing:${{ needs.retrieve-tag.outputs.release-tag }}

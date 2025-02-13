@@ -19,10 +19,6 @@
         Accelerate your Business with AI
       </h2>
 
-      <!-- <TextGenerateEffect
-        words={"Transforming Concepts into Seamless Experiences"}
-      /> -->
-
       <div class="font-bold text-center text-[40px] md:text-5xl lg:text-6xl">
         <div class="my-4">
           <div class="leading-snug tracking-wide text-black dark:text-white">
