@@ -55,5 +55,5 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/accelizen/landing:latest
-            ghcr.io/accleizen/landing:${{ needs.retrieve-tag.outputs.release-tag }}
+            ghcr.io/robnmrz/landing:latest
+            ghcr.io/robnmrz/landing:${{ needs.retrieve-tag.outputs.release-tag }}
